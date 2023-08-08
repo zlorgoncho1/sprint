@@ -1,4 +1,4 @@
-module github.com/zlorgoncho1/sprint
+module github.com/zlorgoncho1/sprint/v0.0.0
 
 go 1.20
 

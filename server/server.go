@@ -5,8 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"sprint/core"
-	"sprint/logger"
+
+	core "github.com/zlorgoncho1/sprint/core"
+	logger "github.com/zlorgoncho1/sprint/logger"
 
 	"strings"
 	"time"
