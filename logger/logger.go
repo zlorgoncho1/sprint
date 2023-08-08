@@ -21,7 +21,7 @@ var colorMap = map[string]color.Attribute{
 	"white":   color.FgWhite,
 }
 
-func (l Logger) Print(message string, moduleName string) {
+func (l Logger) Print(message interface{}, moduleName string) {
 	fmt.Println(message)
 }
 
@@ -33,7 +33,7 @@ func (l Logger) Color(__color string) func(a ...interface{}) string {
 	return color.New(colorValue).SprintFunc()
 }
 
-func (l Logger) Debug(message string, moduleName string) {
+func (l Logger) Debug(message interface{}, moduleName string) {
 	fmt.Println(
 		fmt.Sprintf("%s %s %s %s %s",
 			l.Color("white")("[Sprint] [Beta - v0.0.0]"),
@@ -44,7 +44,7 @@ func (l Logger) Debug(message string, moduleName string) {
 	)
 }
 
-func (l Logger) Log(message string, moduleName string) {
+func (l Logger) Log(message interface{}, moduleName string) {
 	fmt.Println(
 		fmt.Sprintf("%s %s %s %s %s",
 			l.Color("blue")("[Sprint] [Beta - v0.0.0]"),
@@ -55,7 +55,7 @@ func (l Logger) Log(message string, moduleName string) {
 	)
 }
 
-func (l Logger) Warn(message string, moduleName string) {
+func (l Logger) Warn(message interface{}, moduleName string) {
 	fmt.Println(
 		fmt.Sprintf("%s %s %s %s %s",
 			l.Color("yellow")("[Sprint] [Beta - v0.0.0]"),
@@ -66,7 +66,7 @@ func (l Logger) Warn(message string, moduleName string) {
 	)
 }
 
-func (l Logger) Error(message string, moduleName string) {
+func (l Logger) Error(message interface{}, moduleName string) {
 	fmt.Println(
 		fmt.Sprintf("%s %s %s %s %s",
 			l.Color("red")("[Sprint] [Beta - v0.0.0]"),
@@ -77,7 +77,7 @@ func (l Logger) Error(message string, moduleName string) {
 	)
 }
 
-func (l Logger) Plog(message string, elapsed time.Duration, moduleName string, statusCode string, statusMessage string) {
+func (l Logger) Plog(message interface{}, elapsed time.Duration, moduleName string, statusCode string, statusMessage string) {
 	var formattedMessage string
 	switch statusCode {
 	case "0":

@@ -31,3 +31,11 @@ type Request struct {
 type Response struct {
 	Content interface{}
 }
+
+type EndpointNode struct {
+	Method      string
+	Function    func(request Request) Response
+	DynamicNode *EndpointNode
+	NextNodeMap map[string]*EndpointNode
+	Level       int
+}

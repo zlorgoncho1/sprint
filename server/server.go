@@ -14,9 +14,9 @@ import (
 )
 
 type Server struct {
-	Host   string
-	Port   string
-	routes map[string]core.Route
+	Host      string
+	Port      string
+	routeTree core.EndpointNode
 }
 
 var __logger logger.Logger = logger.Logger{}
@@ -44,12 +44,15 @@ func (server Server) Start(mainModule core.Module) (net.Listener, error) {
 }
 
 func (server Server) RoutesResolver(controllers []core.Controller) {
+	server.routeTree = core.EndpointNode{Level: 0, NextNodeMap: make(map[string]*core.EndpointNode)}
 	for i := 0; i < len(controllers); i++ {
 		controller := (controllers)[i]
 		controllerName, controllerPath := controller.Init()
+		if strings.HasPrefix(controllerPath, "/") {
+			controllerPath = controllerPath[1:]
+		}
 		__logger.Log(fmt.Sprintf("%s | %s", controllerName, controllerPath), "ControllerResolver")
 		routes := controller.Routes()
-		server.routes = make(map[string]core.Route)
 		for o := 0; o < len(routes); o++ {
 			startTime := time.Now()
 			route := routes[o]
@@ -57,12 +60,54 @@ func (server Server) RoutesResolver(controllers []core.Controller) {
 				controllerPath = controllerPath[:len(controllerPath)-1]
 			}
 			route.Endpoint = fmt.Sprintf("%s%s", controllerPath, route.Endpoint)
-			//TODO: NEED TO CHECK PARAMS OF VIEWS
-			server.routes[route.Endpoint] = route
+			server.addEndpoint(&server.routeTree, route)
 			endTime := time.Now()
 			__logger.Plog(fmt.Sprintf("Mapped %s, {{ %s }}", route.Method, route.Endpoint), endTime.Sub(startTime), "ViewResolver", "0", "OK")
 		}
 	}
+	// fmt.Println(server.routeTree.NextNodeMap["GET"].DynamicNode.Function(core.Request{}))
+}
+
+func (server Server) addEndpoint(node *core.EndpointNode, route core.Route) *core.EndpointNode {
+	workingNode := node
+	if node.Level == 0 {
+		_, exists := node.NextNodeMap[route.Method]
+		if exists {
+			workingNode = node.NextNodeMap[route.Method]
+		} else {
+			workingNode = &core.EndpointNode{Method: route.Method, Level: node.Level + 1, NextNodeMap: make(map[string]*core.EndpointNode)}
+			node.NextNodeMap[route.Method] = workingNode
+		}
+	}
+
+	routeSplited := strings.Split(route.Endpoint, "/")
+	numberOfSubPath := len(routeSplited)
+	if numberOfSubPath >= 1 {
+		path := routeSplited[workingNode.Level-1]
+		existingNode, exists := workingNode.NextNodeMap[path]
+		if exists {
+			if numberOfSubPath == 1 {
+				return existingNode
+			}
+			return server.addEndpoint(existingNode, route)
+		} else {
+			newNode := &core.EndpointNode{Method: route.Method, Level: workingNode.Level + 1, NextNodeMap: make(map[string]*core.EndpointNode), Function: route.Function}
+			if strings.HasPrefix(path, ":") {
+				workingNode.DynamicNode = newNode
+			} else {
+				workingNode.NextNodeMap[path] = newNode
+			}
+			if numberOfSubPath == 1 {
+				return workingNode
+			}
+			return server.addEndpoint(workingNode, route)
+		}
+	}
+	return workingNode
+}
+
+func (server Server) insertInRoutingTree() {
+
 }
 
 func (server Server) extractHeadData(head string) (string, string, string, map[string]string, []string, error) {
