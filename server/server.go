@@ -8,6 +8,7 @@ import (
 
 	core "github.com/zlorgoncho1/sprint/core"
 	logger "github.com/zlorgoncho1/sprint/logger"
+	"github.com/zlorgoncho1/sprint/utils"
 
 	"strings"
 	"time"
@@ -23,7 +24,7 @@ var __logger logger.Logger = logger.Logger{}
 
 func (server Server) Start(mainModule core.Module) (net.Listener, error) {
 	__logger.Log("Starting Sprint Application ...", "ServerCore")
-	server.RoutesResolver(mainModule.Controllers)
+	server.routeTree = server.routesResolver(mainModule.Controllers)
 	startTime := time.Now()
 	addr := server.Host + ":" + server.Port
 	listener, err1 := net.Listen("tcp", addr)
@@ -43,29 +44,26 @@ func (server Server) Start(mainModule core.Module) (net.Listener, error) {
 	}
 }
 
-func (server Server) RoutesResolver(controllers []core.Controller) {
+func (server Server) routesResolver(controllers []core.Controller) core.EndpointNode {
 	server.routeTree = core.EndpointNode{Level: 0, NextNodeMap: make(map[string]*core.EndpointNode)}
 	for i := 0; i < len(controllers); i++ {
 		controller := (controllers)[i]
 		controllerName, controllerPath := controller.Init()
-		if strings.HasPrefix(controllerPath, "/") {
-			controllerPath = controllerPath[1:]
-		}
+		controllerPath = strings.TrimPrefix(controllerPath, "/")
 		__logger.Log(fmt.Sprintf("%s | %s", controllerName, controllerPath), "ControllerResolver")
 		routes := controller.Routes()
+		// REVOIT LES SLASH
 		for o := 0; o < len(routes); o++ {
 			startTime := time.Now()
 			route := routes[o]
-			if strings.HasSuffix(controllerPath, "/") && strings.HasPrefix(route.Endpoint, "/") {
-				controllerPath = controllerPath[:len(controllerPath)-1]
-			}
-			route.Endpoint = fmt.Sprintf("%s%s", controllerPath, route.Endpoint)
+			route.Endpoint = strings.TrimPrefix(route.Endpoint, "/")
+			route.Endpoint = fmt.Sprintf("%s/%s", controllerPath, route.Endpoint)
 			server.addEndpoint(&server.routeTree, route)
 			endTime := time.Now()
 			__logger.Plog(fmt.Sprintf("Mapped %s, {{ %s }}", route.Method, route.Endpoint), endTime.Sub(startTime), "ViewResolver", "0", "OK")
 		}
 	}
-	// fmt.Println(server.routeTree.NextNodeMap["GET"].DynamicNode.Function(core.Request{}))
+	return server.routeTree
 }
 
 func (server Server) addEndpoint(node *core.EndpointNode, route core.Route) *core.EndpointNode {
@@ -75,39 +73,35 @@ func (server Server) addEndpoint(node *core.EndpointNode, route core.Route) *cor
 		if exists {
 			workingNode = node.NextNodeMap[route.Method]
 		} else {
-			workingNode = &core.EndpointNode{Method: route.Method, Level: node.Level + 1, NextNodeMap: make(map[string]*core.EndpointNode)}
+			workingNode = &core.EndpointNode{Endpoint: route.Method, Level: node.Level + 1, NextNodeMap: make(map[string]*core.EndpointNode)}
 			node.NextNodeMap[route.Method] = workingNode
 		}
 	}
 
 	routeSplited := strings.Split(route.Endpoint, "/")
 	numberOfSubPath := len(routeSplited)
-	if numberOfSubPath >= 1 {
+	if numberOfSubPath-workingNode.Level >= 0 {
 		path := routeSplited[workingNode.Level-1]
 		existingNode, exists := workingNode.NextNodeMap[path]
 		if exists {
-			if numberOfSubPath == 1 {
+			if numberOfSubPath == 0 {
 				return existingNode
 			}
 			return server.addEndpoint(existingNode, route)
 		} else {
-			newNode := &core.EndpointNode{Method: route.Method, Level: workingNode.Level + 1, NextNodeMap: make(map[string]*core.EndpointNode), Function: route.Function}
+			newNode := &core.EndpointNode{Endpoint: path, Level: workingNode.Level + 1, NextNodeMap: make(map[string]*core.EndpointNode), Function: route.Function}
 			if strings.HasPrefix(path, ":") {
 				workingNode.DynamicNode = newNode
 			} else {
 				workingNode.NextNodeMap[path] = newNode
 			}
-			if numberOfSubPath == 1 {
-				return workingNode
+			if numberOfSubPath == 0 {
+				return newNode
 			}
-			return server.addEndpoint(workingNode, route)
+			return server.addEndpoint(newNode, route)
 		}
 	}
 	return workingNode
-}
-
-func (server Server) insertInRoutingTree() {
-
 }
 
 func (server Server) extractHeadData(head string) (string, string, string, map[string]string, []string, error) {
@@ -123,7 +117,7 @@ func (server Server) extractHeadData(head string) (string, string, string, map[s
 	protocol := requestLine[2]
 
 	endpointParts := strings.SplitN(_endpoint, "?", 2)
-	endpoint := endpointParts[0]
+	endpoint := strings.TrimPrefix(endpointParts[0], "/")
 
 	var query []string
 	if len(endpointParts) > 1 {
@@ -149,7 +143,7 @@ func (server Server) extractHTTPBufferData(data string) (core.Request, error) {
 		return core.Request{}, errors.New("FORMAT DU BUFFER INVALIDE")
 	}
 	head := parts[0]
-	var body string
+	var body interface{}
 	if len(parts) == 2 {
 		body = parts[1]
 	}
@@ -160,24 +154,22 @@ func (server Server) extractHTTPBufferData(data string) (core.Request, error) {
 	contentType, keyExists := headers["Content-Type"]
 	if keyExists {
 		if strings.HasPrefix(contentType, "text/plain") {
-			// do nothing
 		} else if strings.HasPrefix(contentType, "application/json") {
 			var jsonObj interface{}
-			err := json.Unmarshal([]byte(body), &jsonObj)
+			err := json.Unmarshal([]byte(body.(string)), &jsonObj)
 			if err != nil {
 				return core.Request{}, err
 			}
-			body = jsonObj.(string)
+			body = jsonObj
 		} else {
 			return core.Request{}, errors.New("ContentTypeException")
 		}
 	}
-
-	key := method + endpoint
-	return core.Request{Method: method, Endpoint: endpoint, Protocol: protocol, Headers: headers, Query: query, Body: body, Key: key}, nil
+	return core.Request{Method: method, Endpoint: endpoint, Protocol: protocol, Headers: headers, Query: query, Body: body, Params: make(map[string]string)}, nil
 }
 
 func (server Server) readBuffer(conn net.Conn) {
+	startTime := time.Now()
 	defer conn.Close()
 	var req []byte
 	keep_loop := true
@@ -193,9 +185,66 @@ func (server Server) readBuffer(conn net.Conn) {
 	for _, ch := range req {
 		msg += string(ch)
 	}
-	_, err := server.extractHTTPBufferData(msg)
+	request, err := server.extractHTTPBufferData(msg)
 	if err != nil {
 		__logger.Error(string(err.Error()), "ServerCore")
 	}
-	// ACTUALLY WE'RE HERE !
+	response := server.handleRequest(&server.routeTree, request)
+	server.handleResponse(&conn, request.Headers["Accept"], request.Protocol, &response)
+	endTime := time.Now()
+	responseMessage := fmt.Sprintf("%s ==> %s - {{ %s }}", conn.RemoteAddr().String(), request.Method, request.Endpoint)
+	__logger.Plog(responseMessage, endTime.Sub(startTime), "RequestHandler", "2", "OK")
+}
+
+func (server Server) handleRequest(node *core.EndpointNode, request core.Request) core.Response {
+	workingNode := node
+	var exists bool
+	if workingNode.Level == 0 {
+		workingNode, exists = workingNode.NextNodeMap[request.Method]
+		if !exists {
+			return core.Response{}
+		}
+	}
+	routeSplited := strings.Split(request.Endpoint, "/")
+	numberOfSubPath := len(routeSplited)
+	if numberOfSubPath-workingNode.Level >= 0 {
+		path := routeSplited[workingNode.Level-1]
+		existingNode, exists := workingNode.NextNodeMap[path]
+		if !exists {
+			if workingNode.DynamicNode == nil {
+				return core.Response{}
+			}
+			existingNode = workingNode.DynamicNode
+			request.Params[strings.TrimPrefix(existingNode.Endpoint, ":")] = path
+		}
+		if numberOfSubPath-workingNode.Level == 0 {
+			return existingNode.Function(request)
+		}
+		return server.handleRequest(existingNode, request)
+	}
+	return core.Response{}
+}
+
+func (server Server) handleResponse(conn *net.Conn, acceptHeader string, protocol string, response *core.Response) {
+	if response.ContentType == "text/html" && (acceptHeader == "text/html" || acceptHeader == "*/*") {
+		utils.HandleHTML(response)
+	} else if response.ContentType == "application/json" && (acceptHeader == "application/json" || acceptHeader == "*/*") {
+		utils.HandleJSON(response)
+	} else if response.ContentType == "text/plain" && (acceptHeader == "text/plain" || acceptHeader == "*/*") {
+		utils.HandlePlainText(response)
+	} else {
+		response.ContentType = "text/plain"
+	}
+	if response.StatusCode == 0 {
+		response.StatusCode = 200
+	}
+	if response.StatusText == "" {
+		response.StatusText = "OK"
+	}
+	if len(response.Headers) == 0 {
+		response.Headers = utils.GetDefaultHeader((response.Content).(string), response.ContentType)
+	}
+	responseStatus := utils.FormatStatusResponse(response.StatusCode, response.StatusText, protocol)
+	headers := utils.DictToHTTPHeadersResponse(response.Headers)
+	(*conn).Write(utils.FormatHTTPResponse(responseStatus, headers, (response.Content).(string)))
 }

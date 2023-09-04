@@ -36,7 +36,7 @@ func (l Logger) Color(__color string) func(a ...interface{}) string {
 func (l Logger) Debug(message interface{}, moduleName string) {
 	fmt.Println(
 		fmt.Sprintf("%s %s %s %s %s",
-			l.Color("white")("[Sprint] [Beta - v0.0.0]"),
+			l.Color("white")("[Sprint] [Dev - v0.0.0]"),
 			l.Color("magenta")(time.Now().Format("| 02/01/2006 - 15:04:05 |")),
 			l.Color("white")("DEBUG"),
 			l.Color("magenta")(fmt.Sprintf("[%s]", moduleName)),
@@ -47,7 +47,7 @@ func (l Logger) Debug(message interface{}, moduleName string) {
 func (l Logger) Log(message interface{}, moduleName string) {
 	fmt.Println(
 		fmt.Sprintf("%s %s %s %s %s",
-			l.Color("blue")("[Sprint] [Beta - v0.0.0]"),
+			l.Color("blue")("[Sprint] [Dev - v0.0.0]"),
 			l.Color("white")(time.Now().Format("| 02/01/2006 - 15:04:05 |")),
 			l.Color("blue")("LOG"),
 			l.Color("green")(fmt.Sprintf("[%s]", moduleName)),
@@ -58,7 +58,7 @@ func (l Logger) Log(message interface{}, moduleName string) {
 func (l Logger) Warn(message interface{}, moduleName string) {
 	fmt.Println(
 		fmt.Sprintf("%s %s %s %s %s",
-			l.Color("yellow")("[Sprint] [Beta - v0.0.0]"),
+			l.Color("yellow")("[Sprint] [Dev - v0.0.0]"),
 			l.Color("white")(time.Now().Format("| 02/01/2006 - 15:04:05 |")),
 			l.Color("yellow")("WARN"),
 			l.Color("white")(fmt.Sprintf("[%s]", moduleName)),
@@ -69,7 +69,7 @@ func (l Logger) Warn(message interface{}, moduleName string) {
 func (l Logger) Error(message interface{}, moduleName string) {
 	fmt.Println(
 		fmt.Sprintf("%s %s %s %s %s",
-			l.Color("red")("[Sprint] [Beta - v0.0.0]"),
+			l.Color("red")("[Sprint] [Dev - v0.0.0]"),
 			l.Color("white")(time.Now().Format("| 02/01/2006 - 15:04:05 |")),
 			l.Color("red")("ERROR"),
 			l.Color("white")(fmt.Sprintf("[%s]", moduleName)),
@@ -82,7 +82,7 @@ func (l Logger) Plog(message interface{}, elapsed time.Duration, moduleName stri
 	switch statusCode {
 	case "0":
 		formattedMessage = fmt.Sprintf("%s %s %s %s %s %s",
-			l.Color("blue")("[Sprint] [Beta - v0.0.0]"),
+			l.Color("blue")("[Sprint] [Dev - v0.0.0]"),
 			l.Color("white")(time.Now().Format("| 02/01/2006 - 15:04:05 |")),
 			l.Color("blue")("LOG"),
 			l.Color("green")(fmt.Sprintf("[%s]", moduleName)),
@@ -90,19 +90,19 @@ func (l Logger) Plog(message interface{}, elapsed time.Duration, moduleName stri
 			l.Color("cyan")(fmt.Sprintf("+%.0f ms", elapsed.Seconds()*1000)))
 	case "2":
 		formattedMessage = fmt.Sprintf("%s %s %s %s",
-			l.Color("white")("[Sprint] [Beta - v0.0.0]"),
+			l.Color("white")("[Sprint] [Dev - v0.0.0]"),
 			l.Color("white")(time.Now().Format("| 02/01/2006 - 15:04:05 |")),
 			l.Color("green")(fmt.Sprintf("LOG [%s] [\"%s\"] %s", moduleName, statusMessage, message)),
 			l.Color("cyan")(fmt.Sprintf("+%.0f ms", elapsed.Seconds()*1000)))
 	case "3":
 		formattedMessage = fmt.Sprintf("%s %s %s %s",
-			l.Color("white")("[Sprint] [Beta - v0.0.0]"),
+			l.Color("white")("[Sprint] [Dev - v0.0.0]"),
 			l.Color("white")(time.Now().Format("| 02/01/2006 - 15:04:05 |")),
 			l.Color("blue")(fmt.Sprintf("LOG [%s] [\"%s\"] %s", moduleName, statusMessage, message)),
 			l.Color("cyan")(fmt.Sprintf("+%.0f ms", elapsed.Seconds()*1000)))
 	default:
 		formattedMessage = fmt.Sprintf("%s %s %s %s",
-			l.Color("white")("[Sprint] [Beta - v0.0.0]"),
+			l.Color("white")("[Sprint] [Dev - v0.0.0]"),
 			l.Color("white")(time.Now().Format("| 02/01/2006 - 15:04:05 |")),
 			l.Color("red")(fmt.Sprintf("LOG [%s] [\"%s\"] %s", moduleName, statusMessage, message)),
 			l.Color("cyan")(fmt.Sprintf("+%.0f ms", elapsed.Seconds()*1000)))
@@ -111,5 +111,5 @@ func (l Logger) Plog(message interface{}, elapsed time.Duration, moduleName stri
 }
 
 func (l Logger) Reload() {
-	fmt.Printf(l.Color("white")(fmt.Sprintf("[Sprint] [Beta - v0.0.0] - [%s] - Server Reloading ...\n", time.Now().Format("02/01/2006, 15:04:05"))))
+	fmt.Printf(l.Color("white")(fmt.Sprintf("[Sprint] [Dev - v0.0.0] - [%s] - Server Reloading ...\n", time.Now().Format("02/01/2006, 15:04:05"))))
 }

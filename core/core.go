@@ -22,20 +22,30 @@ type Request struct {
 	Method   string
 	Endpoint string
 	Protocol string
+	Params   map[string]string
 	Headers  map[string]string
 	Query    []string
 	Body     interface{}
-	Key      string
 }
 
 type Response struct {
-	Content interface{}
+	Content     interface{}
+	ContentType string
+	StatusCode  int
+	StatusText  string
+	Headers     map[string]string
 }
 
 type EndpointNode struct {
-	Method      string
+	Endpoint    string
 	Function    func(request Request) Response
 	DynamicNode *EndpointNode
 	NextNodeMap map[string]*EndpointNode
 	Level       int
 }
+
+const (
+	ContentTypeHTML  = "text/html"
+	ContentTypeJSON  = "application/json"
+	ContentTypePlain = "text/plain"
+)
