@@ -5,13 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strings"
+	"time"
 
 	core "github.com/zlorgoncho1/sprint/core"
 	logger "github.com/zlorgoncho1/sprint/logger"
 	"github.com/zlorgoncho1/sprint/utils"
-
-	"strings"
-	"time"
 )
 
 type Server struct {
@@ -225,15 +224,22 @@ func (server Server) handleRequest(node *core.EndpointNode, request core.Request
 	return core.Response{}
 }
 
+type Handlerfunc func(response *core.Response)
+
 func (server Server) handleResponse(conn *net.Conn, acceptHeader string, protocol string, response *core.Response) {
-	if response.ContentType == "text/html" && (acceptHeader == "text/html" || acceptHeader == "*/*") {
-		utils.HandleHTML(response)
-	} else if response.ContentType == "application/json" && (acceptHeader == "application/json" || acceptHeader == "*/*") {
-		utils.HandleJSON(response)
-	} else if response.ContentType == "text/plain" && (acceptHeader == "text/plain" || acceptHeader == "*/*") {
-		utils.HandlePlainText(response)
-	} else {
-		response.ContentType = "text/plain"
+
+	content_type_to_function := map[string]Handlerfunc{
+		"text/html":        utils.HandleHTML,
+		"application/json": utils.HandleJSON,
+		"text/plain":       utils.HandlePlainText,
+	}
+	if response.ContentType == acceptHeader || response.ContentType == "*/*" {
+		handler, ok := content_type_to_function[response.ContentType]
+		if ok {
+			handler(response)
+		} else {
+			utils.HandlePlainText(response)
+		}
 	}
 	if response.StatusCode == 0 {
 		response.StatusCode = 200
@@ -247,4 +253,5 @@ func (server Server) handleResponse(conn *net.Conn, acceptHeader string, protoco
 	responseStatus := utils.FormatStatusResponse(response.StatusCode, response.StatusText, protocol)
 	headers := utils.DictToHTTPHeadersResponse(response.Headers)
 	(*conn).Write(utils.FormatHTTPResponse(responseStatus, headers, (response.Content).(string)))
+
 }
