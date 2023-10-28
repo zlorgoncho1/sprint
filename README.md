@@ -200,7 +200,7 @@ We welcome contributions to Sprint! If you'd like to get involved, here are some
 - **Template Rendering**: Integrating a template engine for serving HTML.
 - **Command Line Interface (CLI) Tooling**: Developing a CLI tool to automate routine tasks.
 
-For more details, please refer to our [Contribution Guidelines](https://github.com/zlorgoncho1/sprint/wiki/Contribution-Guidelines).
+For more details, please refer to our [Contribution Guidelines](CONTRIBUTING.md) or explore the wiki [Wiki](https://github.com/zlorgoncho1/sprint/wiki).
 
 ## License
 
