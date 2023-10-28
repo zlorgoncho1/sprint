@@ -200,11 +200,8 @@ We welcome contributions to Sprint! If you'd like to get involved, here are some
 - **Template Rendering**: Integrating a template engine for serving HTML.
 - **Command Line Interface (CLI) Tooling**: Developing a CLI tool to automate routine tasks.
 
-For more details, please refer to our [Contribution Guidelines](CONTRIBUTING.md).
+For more details, please refer to our [Contribution Guidelines](https://github.com/zlorgoncho1/sprint/wiki/Contribution-Guidelines).
 
 ## License
 
 Sprint is licensed under the [MIT License](LICENSE).
-```
-
-This revised README file provides a clearer and more comprehensive introduction to Sprint, including installation, basic usage, key features, and contribution guidelines. Feel free to customize it further as needed.
