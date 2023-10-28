@@ -1,3 +1,6 @@
+I apologize for the oversight. Here's the revised README file with the "Main Components" and "Design Decisions and Highlights" sections included:
+
+```markdown
 # Sprint Web Framework
 
 Sprint is a modular, high-performance web framework for Go, inspired by the architecture of NestJS. Designed to streamline backend development, Sprint empowers developers to build scalable and maintainable applications with ease. It emphasizes a modular structure, where functionality is divided into controllers and modules, allowing for clear organization and flexibility in development.
@@ -8,6 +11,8 @@ Sprint is a modular, high-performance web framework for Go, inspired by the arch
   - [Installation](#installation)
   - [Creating Your First Sprint Application](#creating-your-first-sprint-application)
 - [Key Features](#key-features)
+- [Main Components](#main-components)
+- [Design Decisions and Highlights](#design-decisions-and-highlights)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -146,9 +151,49 @@ Your Sprint application should now be running on `localhost:8000`. Visiting `loc
 - **Intuitive Controller Setup**: Simplified creation of controllers to handle various routes and requests.
 - **Simplicity and Performance**: Leverages Go's efficiency and simplicity, providing a framework that is both easy to use and high-performing.
 
+## Main Components
+
+### Core (`core.go`)
+
+The core of our framework lies within `core.go`, which defines the primary structs and interfaces used throughout the application. This includes definitions for:
+
+- **Modules**: Conceptually similar to controllers in MVC frameworks, they're used to organize the handling of different routes and their associated functionalities.
+- **EndpointNode**: A fundamental part of the routing mechanism, these nodes represent individual endpoints in a tree-like structure for efficient route resolution.
+- **Response and Request**: Custom types to handle incoming requests and outgoing responses, providing an abstraction over Go's native HTTP handling facilities.
+
+### Utils (`utils.go`)
+
+This utility package (`utils.go`) provides a set of handy functions for converting dictionaries to JSON strings, formatting HTTP responses, and generating standard headers. It abstracts some repetitive tasks, such as:
+
+- Converting map objects to JSON.
+- Formatting status responses for HTTP.
+- Converting a dictionary of headers into a proper HTTP header format.
+- Handling different types of responses (HTML, JSON, Plain Text) based on content type.
+
+### Logger (`logger.go`)
+
+Logging is a critical aspect of any application. Our `logger.go` file describes a custom logger capable of handling various logging levels (e.g., Info, Error) and providing a way to output logs with different severities. This is crucial for both debugging and runtime monitoring of the application.
+
+### Server (`server.go`)
+
+The `server.go` file is the heart of the framework where the HTTP server is configured and launched. Key functionalities include:
+
+- **Starting the Server**: It listens on a specified host and port, manages incoming connections, and processes incoming data.
+- **Routing**: It resolves the routes from the provided modules and efficiently manages the mapping of HTTP requests to their respective handlers.
+- **Request and Response Handling**: It handles the parsing of requests, including headers and body, and ensures that responses are correctly formatted and sent back to the client.
+
+## Design Decisions and Highlights
+
+- **Routing Mechanism**: A tree-like structure for routing (as seen in `server.go`) allows efficient resolution of endpoints. This is particularly advantageous for applications with a large number of routes.
+- **Dynamic Endpoints**: The framework supports dynamic routing (e.g., `/user/:id`), allowing for more flexible endpoint definitions.
+- **Custom Error Handling**: Each component, especially in request parsing and response generation in `server.go`, includes comprehensive error handling, enhancing the robustness of the application.
+- **Performance Logging**: Performance for critical operations, like route resolving and request handling, is monitored and logged, which can help in optimization and debugging.
+
 ## Contributing
 
 We welcome contributions to Sprint! If you'd like to get involved, here are some areas where you can make a difference:
+
+- **Code Improvement and Review**: Continuous improvement, optimization, and refactoring of the codebase
 
 - **Code Improvement and Review**: Continuous improvement, optimization, and refactoring of the codebase.
 - **Middleware Support**: Introducing middleware for pre-processing requests and post-processing responses.
