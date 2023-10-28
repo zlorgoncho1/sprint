@@ -1,6 +1,3 @@
-I apologize for the oversight. Here's the revised README file with the "Main Components" and "Design Decisions and Highlights" sections included:
-
-```markdown
 # Sprint Web Framework
 
 Sprint is a modular, high-performance web framework for Go, inspired by the architecture of NestJS. Designed to streamline backend development, Sprint empowers developers to build scalable and maintainable applications with ease. It emphasizes a modular structure, where functionality is divided into controllers and modules, allowing for clear organization and flexibility in development.
