@@ -34,7 +34,6 @@ go mod init app
 Assuming Sprint is available as a Go module, install it using:
 
 ```bash
-go get github.com/zlorgoncho1/sprint
 go get github.com/zlorgoncho1/sprint/server
 ```
 
