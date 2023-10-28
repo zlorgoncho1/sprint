@@ -35,7 +35,7 @@ Assuming Sprint is available as a Go module, install it using:
 
 ```bash
 go get github.com/zlorgoncho1/sprint
-go get package github.com/zlorgoncho1/sprint/sprint
+go get package github.com/zlorgoncho1/sprint/server
 ```
 
 ##### Step 3: Project Structure
