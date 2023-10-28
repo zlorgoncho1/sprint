@@ -6,7 +6,7 @@ Thank you for your interest in contributing to Sprint! We appreciate your help i
 
 ### Reporting Issues
 
-If you encounter any issues or have suggestions for improvements, please open an issue on our [GitHub repository](https://github.com/your/repository). When reporting issues, please provide the following details:
+If you encounter any issues or have suggestions for improvements, please open an issue on our [GitHub repository](https://github.com/zlorgoncho1/sprint). When reporting issues, please provide the following details:
 
 - A clear and concise title and description.
 - Steps to reproduce the issue.
