@@ -190,8 +190,6 @@ The `server.go` file is the heart of the framework where the HTTP server is conf
 
 We welcome contributions to Sprint! If you'd like to get involved, here are some areas where you can make a difference:
 
-- **Code Improvement and Review**: Continuous improvement, optimization, and refactoring of the codebase
-
 - **Code Improvement and Review**: Continuous improvement, optimization, and refactoring of the codebase.
 - **Middleware Support**: Introducing middleware for pre-processing requests and post-processing responses.
 - **Enhanced JSON and XML Parsing**: More utilities for handling different types of request and response payloads.
