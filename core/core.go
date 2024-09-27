@@ -8,6 +8,8 @@ type Module struct {
 	Controllers []*Controller // Controllers associated with this module.
 }
 
+type Middleware func(Request, func(Request) Response) Response
+
 // Controller handles incoming HTTP requests and routes them to their respective handler functions.
 type Controller struct {
 	Name   string   // Name of the controller.
