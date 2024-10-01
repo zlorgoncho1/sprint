@@ -1,0 +1,15 @@
+{
+  "auto_increment": {
+    "income": 3
+  },
+  "income": {
+    "1": {
+      "amount": "5000",
+      "category": "Salary"
+    },
+    "2": {
+      "amount": "20000",
+      "category": "salary"
+    }
+  }
+}

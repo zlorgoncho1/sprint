@@ -366,9 +366,6 @@ func CORSMiddleware(req core.Request, next func(core.Request) core.Response) cor
 
 	response := next(req)
 
-	fmt.Println("Response:", response, req.Body)
-
-	// Initialiser la map Headers si elle est nil
 	if response.Headers == nil {
 		response.Headers = make(map[string]string)
 	}
